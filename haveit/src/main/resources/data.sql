@@ -1,0 +1,2 @@
+insert into user_account (user_id, user_password, nickname, email, memo, created_at, created_by, modified_at, modified_by) values
+('jsh', '9057', 'Jeong', 'jsh@mail.com', 'I am Jeong.', now(), 'jsh', now(), 'jsh');
