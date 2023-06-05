@@ -34,11 +34,11 @@ public class Article {
     @Setter @ManyToOne(optional = false) private UserAccount userAccount;
 
     @Setter @Column(nullable = false) private String title;
-    @Setter @Column(nullable = false) private String content;
+    @Setter @Column(nullable = false , length = 1000) private String content;
 
     @ToString.Exclude
     @OrderBy("createdAt DESC ")
-    @OneToMany(mappedBy = "article")
+    @OneToMany(mappedBy = "article" , cascade = CascadeType.ALL)        // TODO : 게시글 삭제 시, 댓글도 삭제 됨 이후에 soft delete 변경 필요
     private final Set<Comment> comments = new LinkedHashSet<>();
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

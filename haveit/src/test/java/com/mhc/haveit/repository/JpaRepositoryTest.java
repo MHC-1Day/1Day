@@ -1,5 +1,6 @@
 package com.mhc.haveit.repository;
 import com.mhc.haveit.config.JpaConfig;
+import com.mhc.haveit.domain.Habit;
 import com.mhc.haveit.domain.UserAccount;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -15,9 +17,14 @@ import static org.assertj.core.api.Assertions.*;
 @DataJpaTest
 class JpaRepositoryTest {
     private final UserAccountRepository userAccountRepository;
+    private final HabitRepository habitRepository;
 
-    public JpaRepositoryTest(@Autowired UserAccountRepository userAccountRepository) {
+    public JpaRepositoryTest(
+            @Autowired UserAccountRepository userAccountRepository,
+            @Autowired HabitRepository habitRepository
+    ) {
         this.userAccountRepository = userAccountRepository;
+        this.habitRepository = habitRepository;
     }
 
     @DisplayName("[SELECT] 테스트")
@@ -27,11 +34,15 @@ class JpaRepositoryTest {
 
         // When
         List<UserAccount> userAccounts = userAccountRepository.findAll();
+        List<Habit> habits = habitRepository.findAll();
 
         // Then
         assertThat(userAccounts)
                 .isNotNull()
                 .hasSize(1);
+        assertThat(habits)
+                .isNotNull()
+                .hasSize(100);
     }
 
     @DisplayName("[INSERT] 테스트")
@@ -68,14 +79,13 @@ class JpaRepositoryTest {
     @Test
     void givenTestData_whenDeleting_thenFine() {
         // Given
-        UserAccount userAccount = userAccountRepository.findById(1L).orElseThrow();
-        long previousCount = userAccountRepository.count();
+        long previousCount = habitRepository.count();
 
         // When
-        userAccountRepository.delete(userAccount);
+        habitRepository.deleteById(1L);
 
         // Then
-        assertThat(userAccountRepository.count())
+        assertThat(habitRepository.count())
                 .isEqualTo(previousCount-1);
     }
 }
