@@ -21,7 +21,6 @@ import java.util.Set;
 @Table(indexes = {
         @Index(columnList = "name"),
         @Index(columnList = "hashtag"),
-        @Index(columnList = "createdAt"),
         @Index(columnList = "createdBy")
 })
 @EntityListeners(AuditingEntityListener.class)

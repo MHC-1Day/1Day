@@ -18,10 +18,6 @@ import java.util.Set;
 
 @Getter
 @ToString(callSuper = true)
-@Table(indexes ={
-        @Index(columnList = "createdAt"),
-        @Index(columnList = "createdBy")
-})
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 public class Article {

@@ -17,8 +17,8 @@ import java.util.Objects;
 @Getter
 @ToString(callSuper = true)
 @Table(indexes = {
-        @Index(columnList = "createdAt"),
-        @Index(columnList = "createdBy")
+        @Index(columnList = "habit_id"),
+        @Index(columnList = "user_account_id")
 })
 @EntityListeners(AuditingEntityListener.class)
 @Entity
