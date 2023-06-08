@@ -20,8 +20,8 @@
 
 ### Use Case
 
-![img](https://raw.githubusercontent.com/MHC-1Day/1Day/7e012356e67315dda3e7c261942e81dbc7e96f8a/haveit/document/usecase-white.svg)
+![img](https://raw.githubusercontent.com/MHC-1Day/1Day/06bb2dd38c46623a51b437642fb9e5a452248a31/haveit/document/usecase-white.svg)
 
 ### ERD
 
-![img](https://raw.githubusercontent.com/MHC-1Day/1Day/7e012356e67315dda3e7c261942e81dbc7e96f8a/haveit/document/erd-white.svg)
+![img](https://raw.githubusercontent.com/MHC-1Day/1Day/06bb2dd38c46623a51b437642fb9e5a452248a31/haveit/document/erd-white.svg)
