@@ -1,9 +1,7 @@
 package com.mhc.haveit.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -12,11 +10,14 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Getter
 @ToString(callSuper = true)
 @EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table
 @Entity
 public class Comment {
 
@@ -46,27 +47,5 @@ public class Comment {
     @LastModifiedBy
     @Column(nullable = false, updatable = false, length = 100)
     private String modifiedBy;
-
-    protected Comment() {}
-    private Comment(Article article, UserAccount userAccount, String content) {
-        this.article = article;
-        this.userAccount = userAccount;
-        this.content = content;
-    }
-
-    public static Comment of (Article article, UserAccount userAccount, String content) {
-        return new Comment(article,userAccount,content);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Comment comment)) return false;
-        return id != null && id.equals(comment.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
 }
+

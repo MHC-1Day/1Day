@@ -1,9 +1,7 @@
 package com.mhc.haveit.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -13,17 +11,19 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
-import java.util.Objects;
 import java.util.Set;
 
 @Getter
 @ToString(callSuper = true)
+@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(indexes = {
         @Index(columnList = "name"),
         @Index(columnList = "hashtag"),
         @Index(columnList = "createdBy")
 })
-@EntityListeners(AuditingEntityListener.class)
 @Entity
 public class Habit {
 
@@ -60,28 +60,4 @@ public class Habit {
     @LastModifiedBy
     @Column(nullable = false, updatable = false, length = 100)
     private String modifiedBy;
-
-    protected Habit() {}
-    private Habit(String name, UserAccount userAccount, String content, String hashtag, LocalDateTime endDate) {
-        this.name = name;
-        this.userAccount = userAccount;
-        this.content = content;
-        this.hashtag = hashtag;
-        this.endDate = endDate;
-    }
-
-    public static Habit of(String name, UserAccount userAccount, String content, String hashtag, LocalDateTime endDate) {
-        return new Habit(name,userAccount,content,hashtag,endDate);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Habit habit)) return false;
-        return id != null && id.equals(habit.id);
-    }
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
 }
