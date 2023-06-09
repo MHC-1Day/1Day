@@ -1,9 +1,7 @@
 package com.mhc.haveit.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -16,11 +14,14 @@ import java.util.Objects;
 
 @Getter
 @ToString(callSuper = true)
-@Table(indexes = {
-        @Index(columnList = "createdAt"),
-        @Index(columnList = "createdBy")
-})
 @EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(indexes = {
+        @Index(columnList = "habit_id"),
+        @Index(columnList = "user_account_id")
+})
 @Entity
 public class HabitRegistration {
 
@@ -48,27 +49,4 @@ public class HabitRegistration {
     @LastModifiedBy
     @Column(nullable = false, updatable = false, length = 100)
     private String modifiedBy;
-
-    private HabitRegistration(Habit habit, UserAccount userAccount) {
-        this.habit = habit;
-        this.userAccount = userAccount;
-    }
-
-    protected HabitRegistration () {}
-
-    public static HabitRegistration of (Habit habit, UserAccount userAccount) {
-        return new HabitRegistration(habit, userAccount);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof HabitRegistration habitRegistration)) return false;
-        return id != null && id.equals(habitRegistration.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
 }

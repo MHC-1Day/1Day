@@ -52,7 +52,15 @@ class JpaRepositoryTest {
         long previousCount = userAccountRepository.count();
 
         // When
-        userAccountRepository.save(UserAccount.of("jsh2","pw","Jeong","jsh@email.com","memo"));
+        userAccountRepository.save(
+                UserAccount.builder()
+                        .userId("jsh")
+                        .userPassword("pw")
+                        .nickname("Jeong")
+                        .email("jsh@mail.com")
+                        .memo("memo")
+                        .build()
+        );
 
         // Then
         assertThat(userAccountRepository.count())
