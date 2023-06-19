@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 
+@DisplayName("비즈니스 로직 - 습관")
 @ExtendWith(MockitoExtension.class)
 class HabitServiceTest {
 
