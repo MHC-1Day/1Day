@@ -101,8 +101,8 @@
                                     </select>
                                 </div>
                                 <div class="col-lg-8 col-md-6 col-sm-12 p-0">
-                                    <label for="search-value" hidden>검색어</label>
-                                    <input type="text" placeholder="검색어..." class="form-control" id="search-value" name="searchKeyword">
+                                    <label for="search-keyword" hidden>검색어</label>
+                                    <input type="text" placeholder="검색어..." class="form-control" id="search-keyword" name="searchKeyword" th:value="${param.searchKeyword}">
                                 </div>
                                 <div class="col-lg-1 col-md-3 col-sm-12 p-0">
                                     <button type="submit" class="btn btn-base">
@@ -128,13 +128,13 @@
                             <a style="text-decoration:none" th:href="@{'/habits/' + ${habit.id}}">
                                 <p class="card-text" style='color:black;overflow:hidden;white-space:nowrap;text-overflow:ellipsis' th:text="${habit.name}"></p>
                                 <p class="card-text" style='overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:darkgray' th:color="gray" th:text="${habit.content}"></p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" th:text="${habit.hashtag}"></button>
-                                    </div>
-                                    <small class="text-muted" th:text="${#temporals.format(habit.createdAt, 'yyyy-MM-dd')}"></small>
-                                </div>
                             </a>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <a type="button" class="btn btn-sm btn-outline-secondary" th:href="@{/habits(searchType='HASHTAG', searchKeyword=${habit.hashtag})}" th:text="${habit.hashtag}"></a>
+                                </div>
+                                <small class="text-muted" th:text="${#temporals.format(habit.createdAt, 'yyyy-MM-dd')}"></small>
+                            </div>
                         </div>
                     </div>
                 </div>
