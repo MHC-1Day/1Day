@@ -15,7 +15,6 @@ public class HabitDto implements Serializable {
     private Long id;
     private String name;
     private UserAccountDto userAccountDto;
-    private ArticleDto articleDto;
     private String content;
     private String hashtag;
     private LocalDateTime endDate;
