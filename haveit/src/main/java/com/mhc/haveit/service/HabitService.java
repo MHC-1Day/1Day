@@ -3,7 +3,10 @@ package com.mhc.haveit.service;
 import com.mhc.haveit.domain.Habit;
 import com.mhc.haveit.domain.type.SearchType;
 import com.mhc.haveit.dto.HabitDto;
+import com.mhc.haveit.dto.HabitWithArticlesDto;
+import com.mhc.haveit.dto.UserAccountDto;
 import com.mhc.haveit.repository.HabitRepository;
+import com.mhc.haveit.repository.UserAccountRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,14 +49,14 @@ public class HabitService {
         habitRepository.save(dto.toEntity());
     }
 
-    public void updateHabit(HabitDto dto) {
-        Optional<Habit> habit = habitRepository.findById(dto.getId());
+    public void updateHabit(Long habitId, HabitDto dto) {
+        Optional<Habit> habit = habitRepository.findById(habitId);
         habit.orElseThrow(()-> new EntityNotFoundException("습관 업데이트 실패. 습관을 찾을 수 없습니다 - dto: "+dto));
 
         if(dto.getName() !=null){ habit.get().setName(dto.getName()); }
         if(dto.getContent() != null){ habit.get().setContent(dto.getContent()); }
         if(dto.getHashtag() != null){ habit.get().setHashtag(dto.getHashtag()); }
-        habitRepository.save(dto.toEntity());
+        if(dto.getEndDate() != null){ habit.get().setEndDate(dto.getEndDate()); }
     }
 
     public void deleteHabit(Long habitId) {
@@ -62,5 +65,12 @@ public class HabitService {
 
     public Long getHabitCount() {
         return habitRepository.count();
+    }
+
+    @Transactional(readOnly = true)
+    public HabitWithArticlesDto getHabitWithArticles(Long habitId) {
+        return habitRepository.findById(habitId)
+                .map(HabitWithArticlesDto::from)
+                .orElseThrow(() -> new EntityNotFoundException("습관이 없습니다 - habitId:"+habitId));
     }
 }

@@ -1,20 +1,25 @@
 package com.mhc.haveit.dto;
 
 import com.mhc.haveit.domain.Habit;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class HabitDto implements Serializable {
-
+@AllArgsConstructor
+public class HabitWithArticlesDto{
     private Long id;
-    private String name;
     private UserAccountDto userAccountDto;
+    private Set<ArticleDto> articleDtos;
+    private String name;
     private String content;
     private String hashtag;
     private LocalDateTime endDate;
@@ -23,11 +28,15 @@ public class HabitDto implements Serializable {
     private LocalDateTime modifiedAt;
     private String modifiedBy;
 
-    public static HabitDto from(Habit entity){
-        return HabitDto.builder()
+    public static HabitWithArticlesDto from(Habit entity) {
+        return HabitWithArticlesDto.builder()
                 .id(entity.getId())
-                .name(entity.getName())
                 .userAccountDto(UserAccountDto.from(entity.getUserAccount()))
+                .articleDtos(entity.getArticles().stream()
+                        .map(ArticleDto::from)
+                        .collect(Collectors.toCollection(LinkedHashSet::new))
+                )
+                .name(entity.getName())
                 .content(entity.getContent())
                 .hashtag(entity.getHashtag())
                 .endDate(entity.getEndDate())
@@ -35,17 +44,6 @@ public class HabitDto implements Serializable {
                 .createdBy(entity.getCreatedBy())
                 .modifiedAt(entity.getModifiedAt())
                 .modifiedBy(entity.getModifiedBy())
-                .build();
-    }
-
-    public Habit toEntity() {
-        return Habit.builder()
-                .id(id)
-                .name(name)
-                .userAccount(userAccountDto.toEntity())
-                .content(content)
-                .hashtag(hashtag)
-                .endDate(endDate)
                 .build();
     }
 }

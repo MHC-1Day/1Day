@@ -117,11 +117,12 @@ class HabitServiceTest {
     void givenModifiedHabitInfo_whenUpdatingHabit_thenUpdatesHabit(){
         // Given
         Habit habit = createHabit();
+        Long habitId = 1L;
         HabitDto dto = createHabitDto("walk","hardWalking","#health");
         given(habitRepository.findById(dto.getId())).willReturn(Optional.ofNullable(habit));
 
         // When
-        sut.updateHabit(dto);
+        sut.updateHabit(habitId,dto);
 
         // Then
         assertThat(habit.getName()).isEqualTo("walk");
@@ -137,10 +138,11 @@ class HabitServiceTest {
     void givenNonexistentHabitInfo_whenUpdatingHabit_thenThrowsExceptionAndDoseNothing(){
         // Given
         HabitDto dto = createHabitDto("walk","hardWalking","#health");
+        Long habitId = 1L;
         given(habitRepository.findById(dto.getId())).willReturn(Optional.empty());
 
         // When
-        Throwable t = catchThrowable(()-> sut.updateHabit(dto));
+        Throwable t = catchThrowable(()-> sut.updateHabit(habitId,dto));
 
         // Then
         assertThat(t)
