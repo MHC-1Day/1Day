@@ -1,7 +1,12 @@
 package com.mhc.haveit.controller;
 
+import com.mhc.haveit.domain.type.FormStatus;
 import com.mhc.haveit.domain.type.SearchType;
-import com.mhc.haveit.dto.HabitDto;
+import com.mhc.haveit.dto.UserAccountDto;
+import com.mhc.haveit.dto.request.HabitRequest;
+import com.mhc.haveit.dto.response.ArticleResponse;
+import com.mhc.haveit.dto.response.HabitResponse;
+import com.mhc.haveit.dto.response.HabitWithArticlesResponse;
 import com.mhc.haveit.service.HabitService;
 import com.mhc.haveit.service.PaginationService;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -34,7 +37,7 @@ public class HabitController {
             @PageableDefault(size = DEFAULT_SIZE, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             ModelMap map
     ) {
-        Page<HabitDto> habits = habitService.searchHabits(searchType, searchKeyword, pageable);
+        Page<HabitResponse> habits = habitService.searchHabits(searchType, searchKeyword, pageable).map(HabitResponse::from);
         List<Integer> barNumber = paginationService.getPaginationBarNumbers(pageable.getPageNumber(), habits.getTotalPages());
 
         map.addAttribute("habits", habits);
@@ -43,4 +46,66 @@ public class HabitController {
 
         return "habits/index";
     }
+
+    @GetMapping("/{habitId}")
+    public String habit( @PathVariable Long habitId, ModelMap map) {
+        HabitWithArticlesResponse habit = HabitWithArticlesResponse.from(habitService.getHabitWithArticles(habitId));
+        map.addAttribute("habit",habit);
+        map.addAttribute("articles",habit.getArticlesResponse());
+        for(ArticleResponse a : habit.getArticlesResponse()){
+            System.out.println(a.getCreatedAt());
+        }
+
+        return "habits/detail";
+    }
+
+    @GetMapping("/form")
+    public String newHabitForm(ModelMap modelMap){
+        modelMap.addAttribute("formStatus", FormStatus.CREATE);
+        return "habits/form";
+    }
+
+    @PostMapping("/form")
+    public String postNewHabit(HabitRequest habitRequest){
+        // TODO : 인증 정보를 넣어야합니다.
+        UserAccountDto dummyAccount = UserAccountDto.builder()
+                .id(1L)
+                .userId("jsh")
+                .userPassword("pw")
+                .email("jsh@mail.com")
+                .build();
+
+        habitService.saveHabit(habitRequest.toDto(dummyAccount));
+        return "redirect:/habits";
+    }
+
+    @GetMapping("/{habitId}/form")
+    public String updateHabitFrom(@PathVariable Long habitId, ModelMap modelMap){
+        HabitResponse habitResponse = HabitResponse.from(habitService.getHabit(habitId));
+        modelMap.addAttribute("habit",habitResponse);
+        modelMap.addAttribute("formStatus",FormStatus.UPDATE);
+        return "habits/form";
+    }
+
+    @PostMapping("/{habitId}/form")
+    public String postNewHabit(@PathVariable Long habitId, HabitRequest habitRequest){
+        // TODO : 인증 정보를 넣어야합니다.
+        UserAccountDto dummyAccount = UserAccountDto.builder()
+                .id(1L)
+                .userId("jsh")
+                .userPassword("pw")
+                .nickname("Jeong")
+                .email("jsh@mail.com")
+                .build();
+
+        habitService.updateHabit(habitId,habitRequest.toDto(dummyAccount));
+        return "redirect:/habits/"+habitId;
+    }
+
+    @PostMapping("/{habitId}/delete")
+    public String postDeleteHabit(@PathVariable Long habitId){
+        habitService.deleteHabit(habitId);
+        return "redirect:/habits";
+    }
+
 }
