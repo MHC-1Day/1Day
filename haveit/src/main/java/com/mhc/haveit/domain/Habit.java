@@ -43,6 +43,11 @@ public class Habit {
     @OneToMany(mappedBy = "habit", cascade = CascadeType.ALL)                   // TODO : 습관 삭제 시, 게시글도 삭제 됨 이후에 soft delete 변경 필요
     private final Set<Article> articles = new LinkedHashSet<>();
 
+    @ToString.Exclude
+    @OrderBy("createdAt DESC")
+    @OneToMany(mappedBy = "habit", cascade = CascadeType.ALL)                   // TODO : 습관 삭제 시, 습관 신청 내역도 삭제 됨 이후에 soft delete 변경 필요
+    private final Set<HabitRegistration> habitRegistrations = new LinkedHashSet<>();
+
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @CreatedDate
     @Column(nullable = false)
