@@ -1,6 +1,7 @@
 package com.mhc.haveit.dto;
 
 import com.mhc.haveit.domain.Article;
+import com.mhc.haveit.domain.Habit;
 import com.mhc.haveit.domain.UserAccount;
 import lombok.*;
 
@@ -36,4 +37,17 @@ public class ArticleDto implements Serializable{
                 .build();
     }
 
+    public Article toEntity(Habit habit, UserAccount userAccount) {
+        return Article.builder()
+                .id(id)
+                .habit(habit)
+                .userAccount(userAccount)
+                .title(title)
+                .content(content)
+                .createdAt(createdAt)
+                .createdBy(createdBy)
+                .modifiedAt(modifiedAt)
+                .modifiedBy(modifiedBy)
+                .build();
+    }
 }
