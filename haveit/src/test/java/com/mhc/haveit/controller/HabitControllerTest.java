@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@DisplayName("View 컨트롤러 - 게시글")
+@DisplayName("View 컨트롤러 - 습관")
 @Import(SecurityConfig.class)
 @WebMvcTest(HabitController.class)
 class HabitControllerTest {
@@ -148,7 +148,7 @@ class HabitControllerTest {
     void givenHabitIdNothing_whenRequesting_thenUpdateHabitPage() throws Exception {
         // Given
         Long habitId = 1L;
-        HabitDto habitDto = creatHabitDto();
+        HabitDto habitDto = createHabitDto();
         given(habitService.getHabit(habitId)).willReturn(habitDto);
 
         // When & Then
@@ -223,7 +223,7 @@ class HabitControllerTest {
                 .build();
     }
 
-    static HabitDto creatHabitDto(){
+    static HabitDto createHabitDto(){
         return HabitDto.builder()
                 .id(1L)
                 .userAccountDto(createUserAccountDto())
