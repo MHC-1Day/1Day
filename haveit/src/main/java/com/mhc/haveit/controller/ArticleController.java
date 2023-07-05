@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@RequestMapping("/habits/{habitId}/articles")
+@RequestMapping("/articles")
 @RequiredArgsConstructor
 @Controller
 public class ArticleController {
@@ -21,7 +21,7 @@ public class ArticleController {
     private final ArticleService articleService;
 
     @GetMapping("/form")
-    public String newArticleForm(@PathVariable String habitId, ModelMap modelMap){
+    public String newArticleForm(Long habitId, ModelMap modelMap){
         modelMap.addAttribute("formStatus", FormStatus.CREATE);
         modelMap.addAttribute("habitId",habitId);
         return "articles/form";
@@ -29,8 +29,8 @@ public class ArticleController {
 
     @PostMapping("/form")
     public String postNewArticle(
-            @PathVariable Long habitId,
-            ArticleRequest articleRequest
+            ArticleRequest articleRequest,
+            Long habitId
     ){
         // TODO : 인증 정보를 넣어야합니다.
         UserAccountDto dummyAccount = UserAccountDto.builder()
@@ -47,7 +47,7 @@ public class ArticleController {
     @GetMapping("/{articleId}/form")
     public String updateArticleForm(
             @PathVariable Long articleId,
-            @PathVariable Long habitId,
+            Long habitId,
             ModelMap modelMap
     ){
         ArticleResponse articleResponse = ArticleResponse.from(articleService.getArticle(articleId));
@@ -60,7 +60,7 @@ public class ArticleController {
     @PostMapping("/{articleId}/form")
     public String postUpdateArticle(
             @PathVariable Long articleId,
-            @PathVariable Long habitId,
+            Long habitId,
             ArticleRequest articleRequest
     ){
         // TODO : 인증 정보를 넣어야합니다.
@@ -78,7 +78,7 @@ public class ArticleController {
     @PostMapping("/{articleId}/delete")
     public String deleteArticle(
             @PathVariable Long articleId,
-            @PathVariable String habitId
+            String habitId
     ){
         articleService.deleteArticle(articleId);
         return "redirect:/habits/"+habitId;

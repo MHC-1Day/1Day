@@ -12,7 +12,8 @@
         <h1 th:text="${formStatus} ? '게시글 '+${formStatus.description}">게시글</h1>
     </header>
 
-    <form id="article-form" th:action="${formStatus?.update} ? '/habits/' + ${habitId} + '/articles/'+ ${article.id} +'/form' : '/habits/'+${habitId}+'/articles/form'" th:method="post">
+    <form id="article-form" th:action="${formStatus?.update} ? '/articles/' + ${articleId} + '/form' : '/articles/form'" th:method="post">
+        <input name="habitId" th:value="${habitId}" hidden />
         <div class="row mb-3 justify-content-md-center">
             <label for="title" class="col-sm-2 col-lg-1 col-form-label text-sm-end">제목</label>
             <div class="col-sm-8 col-lg-9">
