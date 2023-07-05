@@ -34,7 +34,7 @@ public class Article {
     @Setter @Column(nullable = false, length = 1000) private String content;
 
     @ToString.Exclude
-    @OrderBy("createdAt DESC ")
+    @OrderBy("createdAt ASC ")
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL) // TODO : 게시글 삭제 시, 댓글도 삭제 됨 이후에 soft delete 변경 필요
     private final Set<Comment> comments = new LinkedHashSet<>();
 
