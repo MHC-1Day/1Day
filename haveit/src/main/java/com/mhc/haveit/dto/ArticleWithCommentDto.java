@@ -1,6 +1,6 @@
 package com.mhc.haveit.dto;
 
-import com.mhc.haveit.domain.Habit;
+import com.mhc.haveit.domain.Article;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,37 +13,35 @@ import java.util.stream.Collectors;
 
 @Getter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class HabitWithArticlesDto{
+@NoArgsConstructor
+public class ArticleWithCommentDto {
     private Long id;
     private UserAccountDto userAccountDto;
-    private Set<ArticleWithCommentDto> articleWithCommentDtos;
-    private String name;
+    private String title;
     private String content;
-    private String hashtag;
-    private LocalDateTime endDate;
+    private Set<CommentDto> commentDtos;
     private LocalDateTime createdAt;
     private String createdBy;
     private LocalDateTime modifiedAt;
     private String modifiedBy;
 
-    public static HabitWithArticlesDto from(Habit entity) {
-        return HabitWithArticlesDto.builder()
+    public static ArticleWithCommentDto from(Article entity){
+        return ArticleWithCommentDto.builder()
                 .id(entity.getId())
                 .userAccountDto(UserAccountDto.from(entity.getUserAccount()))
-                .articleWithCommentDtos(entity.getArticles().stream()
-                        .map(ArticleWithCommentDto::from)
+                .title(entity.getTitle())
+                .content(entity.getContent())
+                .commentDtos(entity.getComments().stream()
+                        .map(CommentDto::from)
                         .collect(Collectors.toCollection(LinkedHashSet::new))
                 )
-                .name(entity.getName())
-                .content(entity.getContent())
-                .hashtag(entity.getHashtag())
-                .endDate(entity.getEndDate())
                 .createdAt(entity.getCreatedAt())
                 .createdBy(entity.getCreatedBy())
                 .modifiedAt(entity.getModifiedAt())
                 .modifiedBy(entity.getModifiedBy())
                 .build();
     }
+
+
 }

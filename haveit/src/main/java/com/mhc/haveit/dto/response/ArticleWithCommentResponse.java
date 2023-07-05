@@ -1,6 +1,6 @@
 package com.mhc.haveit.dto.response;
 
-import com.mhc.haveit.dto.HabitWithArticlesDto;
+import com.mhc.haveit.dto.ArticleWithCommentDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,37 +15,33 @@ import java.util.stream.Collectors;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class HabitWithArticlesResponse {
+public class ArticleWithCommentResponse{
     private Long id;
-    private String name;
-    private String content;
-    private String hashtag;
+    private String title;
     private String nickname;
-    private String email;
-    private LocalDateTime endDate;
+    private String content;
     private LocalDateTime createdAt;
-    private Set<ArticleWithCommentResponse> articleWithCommentResponses;
+    private Set<CommentResponse> commentResponses;
 
-    public static HabitWithArticlesResponse from(HabitWithArticlesDto dto) {
+    public static ArticleWithCommentResponse from(ArticleWithCommentDto dto){
         String nickname = dto.getUserAccountDto().getNickname();
 
         if(nickname==null || nickname.isBlank()){
             nickname = dto.getUserAccountDto().getUserId();
         }
 
-        return HabitWithArticlesResponse.builder()
+        return ArticleWithCommentResponse.builder()
                 .id(dto.getId())
-                .name(dto.getName())
-                .content(dto.getContent())
-                .hashtag(dto.getHashtag())
+                .title(dto.getTitle())
                 .nickname(nickname)
-                .email(dto.getUserAccountDto().getEmail())
-                .endDate(dto.getEndDate())
+                .content(dto.getContent())
                 .createdAt(dto.getCreatedAt())
-                .articleWithCommentResponses(dto.getArticleWithCommentDtos().stream()
-                        .map(ArticleWithCommentResponse::from)
+                .commentResponses(dto.getCommentDtos().stream()
+                        .map(CommentResponse::from)
                         .collect(Collectors.toCollection(LinkedHashSet::new))
                 )
                 .build();
     }
+
+
 }

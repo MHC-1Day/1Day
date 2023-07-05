@@ -3,11 +3,9 @@ package com.mhc.haveit.controller;
 import com.mhc.haveit.config.SecurityConfig;
 import com.mhc.haveit.domain.type.FormStatus;
 import com.mhc.haveit.domain.type.SearchType;
-import com.mhc.haveit.dto.HabitDto;
-import com.mhc.haveit.dto.HabitWithArticlesDto;
-import com.mhc.haveit.dto.UserAccountDto;
+import com.mhc.haveit.dto.*;
 import com.mhc.haveit.dto.request.HabitRequest;
-import com.mhc.haveit.dto.response.HabitResponse;
+import com.mhc.haveit.service.ArticleService;
 import com.mhc.haveit.service.HabitService;
 import com.mhc.haveit.service.PaginationService;
 import org.junit.jupiter.api.DisplayName;
@@ -96,6 +94,7 @@ class HabitControllerTest {
         // Given
         Long habitId = 1L;
         HabitWithArticlesDto habitWithArticlesDto = createHabitWithArticleDto();
+        ArticleWithCommentDto articleWithCommentDto = createArticleWithCommentDto();
         given(habitService.getHabitWithArticles(habitId)).willReturn(habitWithArticlesDto);
 
         // When & Then
@@ -217,7 +216,7 @@ class HabitControllerTest {
         return HabitWithArticlesDto.builder()
                 .id(1L)
                 .userAccountDto(createUserAccountDto())
-                .articleDtos(Set.of())
+                .articleWithCommentDtos(Set.of())
                 .name("study")
                 .content("java study")
                 .build();
@@ -242,4 +241,12 @@ class HabitControllerTest {
                 .build();
     }
 
+    private ArticleWithCommentDto createArticleWithCommentDto() {
+        return ArticleWithCommentDto.builder()
+                .title("title")
+                .content("content")
+                .userAccountDto(createUserAccountDto())
+                .commentDtos(Set.of())
+                .build();
+    }
 }

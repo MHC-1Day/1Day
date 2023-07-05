@@ -4,9 +4,10 @@ import com.mhc.haveit.domain.type.FormStatus;
 import com.mhc.haveit.domain.type.SearchType;
 import com.mhc.haveit.dto.UserAccountDto;
 import com.mhc.haveit.dto.request.HabitRequest;
-import com.mhc.haveit.dto.response.ArticleResponse;
+import com.mhc.haveit.dto.response.ArticleWithCommentResponse;
 import com.mhc.haveit.dto.response.HabitResponse;
 import com.mhc.haveit.dto.response.HabitWithArticlesResponse;
+import com.mhc.haveit.service.ArticleService;
 import com.mhc.haveit.service.HabitService;
 import com.mhc.haveit.service.PaginationService;
 import lombok.RequiredArgsConstructor;
@@ -51,10 +52,7 @@ public class HabitController {
     public String habit( @PathVariable Long habitId, ModelMap map) {
         HabitWithArticlesResponse habit = HabitWithArticlesResponse.from(habitService.getHabitWithArticles(habitId));
         map.addAttribute("habit",habit);
-        map.addAttribute("articles",habit.getArticlesResponse());
-        for(ArticleResponse a : habit.getArticlesResponse()){
-            System.out.println(a.getCreatedAt());
-        }
+        map.addAttribute("articles",habit.getArticleWithCommentResponses());
 
         return "habits/detail";
     }

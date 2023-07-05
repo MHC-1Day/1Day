@@ -1,45 +1,49 @@
 package com.mhc.haveit.dto;
 
-import com.mhc.haveit.domain.Habit;
+import com.mhc.haveit.domain.Article;
+import com.mhc.haveit.domain.Comment;
+import com.mhc.haveit.domain.UserAccount;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class HabitWithArticlesDto{
+public class CommentDto {
     private Long id;
+    private Long articleId;
     private UserAccountDto userAccountDto;
-    private Set<ArticleWithCommentDto> articleWithCommentDtos;
-    private String name;
     private String content;
-    private String hashtag;
-    private LocalDateTime endDate;
     private LocalDateTime createdAt;
     private String createdBy;
     private LocalDateTime modifiedAt;
     private String modifiedBy;
 
-    public static HabitWithArticlesDto from(Habit entity) {
-        return HabitWithArticlesDto.builder()
+    public Comment toEntity(Article article, UserAccount userAccount) {
+        return Comment.builder()
+                .id(id)
+                .article(article)
+                .userAccount(userAccount)
+                .content(content)
+                .createdAt(createdAt)
+                .createdBy(createdBy)
+                .modifiedAt(modifiedAt)
+                .modifiedBy(modifiedBy)
+                .build();
+    }
+
+    public static CommentDto from(Comment entity) {
+        return CommentDto.builder()
                 .id(entity.getId())
+                .articleId(entity.getArticle().getId())
                 .userAccountDto(UserAccountDto.from(entity.getUserAccount()))
-                .articleWithCommentDtos(entity.getArticles().stream()
-                        .map(ArticleWithCommentDto::from)
-                        .collect(Collectors.toCollection(LinkedHashSet::new))
-                )
-                .name(entity.getName())
                 .content(entity.getContent())
-                .hashtag(entity.getHashtag())
-                .endDate(entity.getEndDate())
                 .createdAt(entity.getCreatedAt())
                 .createdBy(entity.getCreatedBy())
                 .modifiedAt(entity.getModifiedAt())
