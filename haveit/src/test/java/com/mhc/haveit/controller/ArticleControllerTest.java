@@ -40,7 +40,7 @@ class ArticleControllerTest {
 
         // When & Then
         // /habits/{habitId}/articles/form
-        mvc.perform(get("/habits/"+habitId+"/articles/form"))
+        mvc.perform(get("/articles/form"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(view().name("articles/form"))
@@ -57,7 +57,7 @@ class ArticleControllerTest {
 
         // When & Then
         mvc.perform(
-                post("/habits/"+habitId+"/articles/form")
+                post("/articles/form")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content(articleEncoded)
                         .with(csrf())
@@ -80,7 +80,7 @@ class ArticleControllerTest {
         given(articleService.getArticle(articleId)).willReturn(articleDto);
 
         // When & Then
-        mvc.perform(get("/habits/"+habitId+"/articles/"+articleId+"/form"))
+        mvc.perform(get("/articles/"+articleId+"/form"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(view().name("articles/form"))
@@ -99,7 +99,7 @@ class ArticleControllerTest {
 
         // When & Then
         mvc.perform(
-                post("/habits/"+habitId+"/articles/"+articleId+"/form")
+                post("/articles/"+articleId+"/form")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content(articleEncoded)
                         .with(csrf())
@@ -117,12 +117,14 @@ class ArticleControllerTest {
         // Given
         long habitId = 1L;
         long articleId = 1L;
+        String habitIdEncoded = "habitId=1";
         willDoNothing().given(articleService).deleteArticle(articleId);
 
         // When & Then
         mvc.perform(
-                post("/habits/"+habitId+"/articles/"+articleId+"/delete")
+                post("/articles/"+articleId+"/delete")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content(habitIdEncoded)
                         .with(csrf())
         )
                 .andExpect(status().is3xxRedirection())
