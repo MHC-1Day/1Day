@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Getter
 @Builder
@@ -24,6 +25,7 @@ public class HabitDto implements Serializable {
     private String modifiedBy;
 
     public static HabitDto from(Habit entity){
+        Optional.ofNullable(entity).orElseThrow(()-> new IllegalArgumentException("잘못된 entity 입니다. - entity:"+entity));
         return HabitDto.builder()
                 .id(entity.getId())
                 .name(entity.getName())

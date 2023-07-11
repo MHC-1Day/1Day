@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Getter
 @Builder
@@ -19,9 +20,10 @@ public class CommentResponse {
     private LocalDateTime createdAt;
 
     public static CommentResponse from(CommentDto dto){
-        String nickname = dto.getUserAccountDto().getNickname();
+        Optional.ofNullable(dto).orElseThrow(()-> new IllegalArgumentException("잘못된 dto 입니다. - dto:"+dto));
 
-        if(nickname == null || nickname.isBlank()){
+        String nickname = dto.getUserAccountDto().getNickname();
+        if(nickname.isBlank()){
             nickname = dto.getUserAccountDto().getUserId();
         }
         return CommentResponse.builder()

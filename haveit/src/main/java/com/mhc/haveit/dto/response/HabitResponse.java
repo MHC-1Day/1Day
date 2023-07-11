@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Getter
 @Builder
@@ -24,9 +25,10 @@ public class HabitResponse{
     private LocalDateTime createdAt;
 
     public static HabitResponse from(HabitDto dto) {
-        String nickname = dto.getUserAccountDto().getNickname();
+        Optional.ofNullable(dto).orElseThrow(()-> new IllegalArgumentException("잘못된 dto 입니다. - dto:"+dto));
 
-        if(nickname==null || nickname.isBlank()){
+        String nickname = dto.getUserAccountDto().getNickname();
+        if(nickname.isBlank()){
             nickname = dto.getUserAccountDto().getUserId();
         }
 

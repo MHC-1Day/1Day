@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 @Getter
@@ -26,6 +27,9 @@ public class CommentDto {
     private String modifiedBy;
 
     public Comment toEntity(Article article, UserAccount userAccount) {
+        Optional.ofNullable(article).orElseThrow(()-> new IllegalArgumentException("잘못된 entity 입니다. - entity:"+article));
+        Optional.ofNullable(userAccount).orElseThrow(()-> new IllegalArgumentException("잘못된 entity 입니다. - entity:"+userAccount));
+
         return Comment.builder()
                 .id(id)
                 .article(article)
