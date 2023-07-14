@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,9 +25,10 @@ public class ArticleWithCommentResponse{
     private Set<CommentResponse> commentResponses;
 
     public static ArticleWithCommentResponse from(ArticleWithCommentDto dto){
-        String nickname = dto.getUserAccountDto().getNickname();
+        Optional.ofNullable(dto).orElseThrow(()-> new IllegalArgumentException("잘못된 dto 입니다. - dto:"+dto));
 
-        if(nickname==null || nickname.isBlank()){
+        String nickname = dto.getUserAccountDto().getNickname();
+        if(nickname.isBlank()){
             nickname = dto.getUserAccountDto().getUserId();
         }
 
@@ -36,9 +38,12 @@ public class ArticleWithCommentResponse{
                 .nickname(nickname)
                 .content(dto.getContent())
                 .createdAt(dto.getCreatedAt())
-                .commentResponses(dto.getCommentDtos().stream()
-                        .map(CommentResponse::from)
-                        .collect(Collectors.toCollection(LinkedHashSet::new))
+                .commentResponses(
+                        Optional.ofNullable(dto.getCommentDtos())
+                                    .orElseThrow(()->new NullPointerException("dto 의 comments 가 null 입니다. "))
+                                .stream()
+                                .map(CommentResponse::from)
+                                .collect(Collectors.toCollection(LinkedHashSet::new))
                 )
                 .build();
     }

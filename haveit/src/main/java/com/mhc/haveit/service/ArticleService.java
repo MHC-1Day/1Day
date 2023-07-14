@@ -4,10 +4,11 @@ import com.mhc.haveit.domain.Article;
 import com.mhc.haveit.domain.Habit;
 import com.mhc.haveit.domain.UserAccount;
 import com.mhc.haveit.dto.ArticleDto;
+import com.mhc.haveit.dto.ArticleWithCommentDto;
 import com.mhc.haveit.repository.ArticleRepository;
 import com.mhc.haveit.repository.HabitRepository;
 import com.mhc.haveit.repository.UserAccountRepository;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,7 @@ public class ArticleService {
     private final HabitRepository habitRepository;
     private final UserAccountRepository userAccountRepository;
 
+    @Transactional(readOnly = true)
     public Page<ArticleDto> searchArticles(Long habitId, Pageable pageable) {
         return articleRepository.findByHabit_Id(habitId,pageable)
                 .map(ArticleDto::from);
@@ -54,6 +56,7 @@ public class ArticleService {
         articleRepository.deleteById(articleId);
     }
 
+    @Transactional(readOnly = true)
     public Long getHabitArticleCount(Long habitId) {
         return articleRepository.countByHabit_Id(habitId);
     }
@@ -62,9 +65,17 @@ public class ArticleService {
         return articleRepository.count();
     }
 
-    public ArticleDto getArticle(long articleId) {
+    @Transactional(readOnly = true)
+    public ArticleDto getArticle(Long articleId){
         return articleRepository.findById(articleId)
                 .map(ArticleDto::from)
+                .orElseThrow(()-> new EntityNotFoundException("존재하지 않는 게시글 입니다. - articleId:"+articleId));
+    }
+
+    @Transactional(readOnly = true)
+    public ArticleWithCommentDto getArticleWithComment(Long articleId) {
+        return articleRepository.findById(articleId)
+                .map(ArticleWithCommentDto::from)
                 .orElseThrow(()-> new EntityNotFoundException("존재하지 않는 게시글 입니다. - articleId:"+articleId));
     }
 }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,9 +28,10 @@ public class HabitWithArticlesResponse {
     private Set<ArticleWithCommentResponse> articleWithCommentResponses;
 
     public static HabitWithArticlesResponse from(HabitWithArticlesDto dto) {
-        String nickname = dto.getUserAccountDto().getNickname();
+        Optional.ofNullable(dto).orElseThrow(()->new IllegalArgumentException("dto -> response : dto 가 Null 입니다"));
 
-        if(nickname==null || nickname.isBlank()){
+        String nickname = dto.getUserAccountDto().getNickname();
+        if(nickname.isBlank()){
             nickname = dto.getUserAccountDto().getUserId();
         }
 
@@ -42,9 +44,12 @@ public class HabitWithArticlesResponse {
                 .email(dto.getUserAccountDto().getEmail())
                 .endDate(dto.getEndDate())
                 .createdAt(dto.getCreatedAt())
-                .articleWithCommentResponses(dto.getArticleWithCommentDtos().stream()
-                        .map(ArticleWithCommentResponse::from)
-                        .collect(Collectors.toCollection(LinkedHashSet::new))
+                .articleWithCommentResponses(
+                        Optional.ofNullable(dto.getArticleWithCommentDtos())
+                                    .orElseThrow(()->new NullPointerException("dto 의 articles 가 null 입니다. "))
+                                .stream()
+                                .map(ArticleWithCommentResponse::from)
+                                .collect(Collectors.toCollection(LinkedHashSet::new))
                 )
                 .build();
     }

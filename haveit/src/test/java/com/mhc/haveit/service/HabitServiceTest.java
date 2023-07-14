@@ -3,7 +3,9 @@ package com.mhc.haveit.service;
 import com.mhc.haveit.domain.Habit;
 import com.mhc.haveit.domain.UserAccount;
 import com.mhc.haveit.domain.type.SearchType;
+import com.mhc.haveit.dto.ArticleWithCommentDto;
 import com.mhc.haveit.dto.HabitDto;
+import com.mhc.haveit.dto.HabitWithArticlesDto;
 import com.mhc.haveit.dto.UserAccountDto;
 import com.mhc.haveit.repository.HabitRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,7 +19,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -180,6 +185,24 @@ class HabitServiceTest {
         then(habitRepository).should().count();
     }
 
+    @Test
+    void givenHabitInfoButNotUserAccountInfo_whenCasting_thenThrowsException(){
+        // Given
+        Habit habit = Habit.builder()
+                                .id(1L)
+                                .name("habit")
+                                .content("content")
+                                .endDate(LocalDateTime.now())
+                                .build();
+
+        // When
+        Throwable t = catchThrowable(()->
+                HabitWithArticlesDto.from(habit)
+        );
+
+        // Then
+        assertThat(t).isInstanceOf(IllegalArgumentException.class);
+    }
 
     private HabitDto createHabitDto(String name, String content, String hashtag){
         return HabitDto.builder()

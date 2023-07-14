@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,12 +30,16 @@ public class HabitWithArticlesDto{
     private String modifiedBy;
 
     public static HabitWithArticlesDto from(Habit entity) {
+        Optional.ofNullable(entity).orElseThrow(()-> new IllegalArgumentException("잘못된 entity 입니다. - entity:"+entity));
         return HabitWithArticlesDto.builder()
                 .id(entity.getId())
                 .userAccountDto(UserAccountDto.from(entity.getUserAccount()))
-                .articleWithCommentDtos(entity.getArticles().stream()
-                        .map(ArticleWithCommentDto::from)
-                        .collect(Collectors.toCollection(LinkedHashSet::new))
+                .articleWithCommentDtos(
+                        Optional.ofNullable(entity.getArticles())
+                                    .orElseThrow(()-> new NullPointerException("entity 의 articles 가 null 입니다."))
+                                .stream()
+                                .map(ArticleWithCommentDto::from)
+                                .collect(Collectors.toCollection(LinkedHashSet::new))
                 )
                 .name(entity.getName())
                 .content(entity.getContent())

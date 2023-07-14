@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Getter
 @Builder
@@ -24,6 +25,7 @@ public class ArticleDto implements Serializable{
     private String modifiedBy;
 
     public static ArticleDto from(Article entity){
+        Optional.ofNullable(entity).orElseThrow(()-> new IllegalArgumentException("잘못된 entity 입니다. - entity:"+entity));
         return ArticleDto.builder()
                 .id(entity.getId())
                 .habitId(entity.getHabit().getId())
