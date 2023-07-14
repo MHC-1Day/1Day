@@ -27,8 +27,8 @@ public class CommentDto {
     private String modifiedBy;
 
     public Comment toEntity(Article article, UserAccount userAccount) {
-        Optional.ofNullable(article).orElseThrow(()-> new IllegalArgumentException("잘못된 entity 입니다. - entity:"+article));
-        Optional.ofNullable(userAccount).orElseThrow(()-> new IllegalArgumentException("잘못된 entity 입니다. - entity:"+userAccount));
+        Optional.ofNullable(article).orElseThrow(()-> new IllegalArgumentException("잘못된 entity 입니다. - "+Article.class.getName()+":"+article));
+        Optional.ofNullable(userAccount).orElseThrow(()-> new IllegalArgumentException("잘못된 entity 입니다. - "+UserAccount.class.getName()+":"+userAccount));
 
         return Comment.builder()
                 .id(id)

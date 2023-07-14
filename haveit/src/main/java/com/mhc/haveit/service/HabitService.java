@@ -7,7 +7,7 @@ import com.mhc.haveit.dto.HabitWithArticlesDto;
 import com.mhc.haveit.dto.UserAccountDto;
 import com.mhc.haveit.repository.HabitRepository;
 import com.mhc.haveit.repository.UserAccountRepository;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -63,6 +63,7 @@ public class HabitService {
         habitRepository.deleteById(habitId);
     }
 
+    @Transactional(readOnly = true)
     public Long getHabitCount() {
         return habitRepository.count();
     }
