@@ -1,6 +1,7 @@
 package com.mhc.haveit.service;
 
 import com.mhc.haveit.domain.Habit;
+import com.mhc.haveit.domain.UserAccount;
 import com.mhc.haveit.domain.type.SearchType;
 import com.mhc.haveit.dto.HabitDto;
 import com.mhc.haveit.dto.HabitWithArticlesDto;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -22,6 +24,7 @@ import java.util.Optional;
 @Transactional
 @Service
 public class HabitService {
+    private final UserAccountRepository userAccountRepository;
 
     private final HabitRepository habitRepository;
 
@@ -46,21 +49,28 @@ public class HabitService {
     }
 
     public void saveHabit(HabitDto dto) {
-        habitRepository.save(dto.toEntity());
+        UserAccount userAccount = userAccountRepository.getReferenceById(dto.getUserAccountDto().getId());
+        habitRepository.save(dto.toEntity(userAccount));
     }
 
     public void updateHabit(Long habitId, HabitDto dto) {
-        Optional<Habit> habit = habitRepository.findById(habitId);
-        habit.orElseThrow(()-> new EntityNotFoundException("습관 업데이트 실패. 습관을 찾을 수 없습니다 - dto: "+dto));
+        try {
+            Habit habit = habitRepository.getReferenceById(habitId);
+            UserAccount userAccount = userAccountRepository.getReferenceById(dto.getUserAccountDto().getId());
 
-        if(dto.getName() !=null){ habit.get().setName(dto.getName()); }
-        if(dto.getContent() != null){ habit.get().setContent(dto.getContent()); }
-        if(dto.getHashtag() != null){ habit.get().setHashtag(dto.getHashtag()); }
-        if(dto.getEndDate() != null){ habit.get().setEndDate(dto.getEndDate()); }
+            if (Objects.equals(habit.getUserAccount().getId(), userAccount.getId())) {
+                if (dto.getName() != null) { habit.setName(dto.getName()); }
+                if (dto.getContent() != null) { habit.setContent(dto.getContent()); }
+                if (dto.getHashtag() != null) { habit.setHashtag(dto.getHashtag()); }
+                if (dto.getEndDate() != null) { habit.setEndDate(dto.getEndDate()); }
+            }
+        } catch (EntityNotFoundException e){
+            log.warn("습관 업데이트 실패. 습관을 수정하는데 필요한 정보를 찾을 수 없습니다 - {}",e.getLocalizedMessage());
+        }
     }
 
-    public void deleteHabit(Long habitId) {
-        habitRepository.deleteById(habitId);
+    public void deleteHabit(Long habitId, String userId) {
+        habitRepository.deleteByIdAndUserAccount_UserId(habitId,userId);
     }
 
     @Transactional(readOnly = true)

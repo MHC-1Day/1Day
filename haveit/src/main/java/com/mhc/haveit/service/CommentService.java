@@ -23,7 +23,7 @@ public class CommentService {
         commentRepository.save(dto.toEntity(article,userAccount));
     }
 
-    public void deleteComment(Long commentId) {
-        commentRepository.deleteById(commentId);
+    public void deleteComment(Long commentId, String userAccountId) {
+        commentRepository.deleteByIdAndUserAccount_UserId(commentId,userAccountId);
     }
 }

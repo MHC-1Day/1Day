@@ -1,6 +1,6 @@
 package com.mhc.haveit.controller;
 
-import com.mhc.haveit.config.SecurityConfig;
+import com.mhc.haveit.config.TestSecurityConfig;
 import com.mhc.haveit.domain.type.FormStatus;
 import com.mhc.haveit.dto.ArticleDto;
 import com.mhc.haveit.dto.UserAccountDto;
@@ -12,6 +12,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.TestExecutionEvent;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -23,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @DisplayName("View 컨트롤러 - 게시글")
-@Import(SecurityConfig.class)
+@Import(TestSecurityConfig.class)
 @WebMvcTest(ArticleController.class)
 class ArticleControllerTest {
 
@@ -32,6 +35,7 @@ class ArticleControllerTest {
 
     public ArticleControllerTest(@Autowired MockMvc mvc) { this.mvc = mvc; }
 
+    @WithMockUser
     @DisplayName("[view][GET] 게시글 작성 페이지")
     @Test
     void givenHabitId_whenRequesting_thenNewArticlePage() throws Exception {
@@ -47,6 +51,7 @@ class ArticleControllerTest {
                 .andExpect(model().attribute("formStatus", FormStatus.CREATE));
     }
 
+    @WithUserDetails(value = "jshTest", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @DisplayName("[view][POST] 게시글 생성")
     @Test
     void givenNewArticleInfo_whenRequesting_thenNewArticle() throws Exception {
@@ -70,6 +75,7 @@ class ArticleControllerTest {
 
     }
 
+    @WithMockUser
     @DisplayName("[view][GET] 게시글 수정 페이지")
     @Test
     void givenArticleId_whenRequesting_thenUpdatePage() throws Exception {
@@ -88,6 +94,8 @@ class ArticleControllerTest {
                 .andExpect(model().attributeExists("article"));
         then(articleService).should().getArticle(articleId);
     }
+
+    @WithUserDetails(value = "jshTest", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @DisplayName("[view][POST] 게시글 수정")
     @Test
     void givenUpdateArticleInfo_whenRequesting_thenUpdatesArticle() throws Exception {
@@ -111,14 +119,16 @@ class ArticleControllerTest {
         then(articleService).should().updateArticle(eq(articleId),any(ArticleDto.class));
     }
 
+    @WithUserDetails(value = "jshTest", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @DisplayName("[view][POST] 게시글 삭제")
     @Test
     void givenArticleId_whenRequesting_thenDeletesArticle() throws Exception {
         // Given
         long habitId = 1L;
         long articleId = 1L;
+        String userId = "jshTest";
         String habitIdEncoded = "habitId=1";
-        willDoNothing().given(articleService).deleteArticle(articleId);
+        willDoNothing().given(articleService).deleteArticle(articleId,userId);
 
         // When & Then
         mvc.perform(
@@ -131,7 +141,7 @@ class ArticleControllerTest {
                 .andExpect(view().name("redirect:/habits/"+habitId))
                 .andExpect(redirectedUrl("/habits/"+habitId))
                 .andDo(print());
-        then(articleService).should().deleteArticle(articleId);
+        then(articleService).should().deleteArticle(articleId,userId);
 
     }
 

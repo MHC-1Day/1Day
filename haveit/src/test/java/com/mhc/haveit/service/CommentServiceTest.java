@@ -55,13 +55,14 @@ class CommentServiceTest {
     void givenCommentId_whenSaving_thenSavesComment() {
         // Given
         Long commentId = 1L;
-        willDoNothing().given(commentRepository).deleteById(commentId);
+        String userAccountId = "jshTest";
+        willDoNothing().given(commentRepository).deleteByIdAndUserAccount_UserId(commentId,userAccountId);
 
         // When
-        sut.deleteComment(commentId);
+        sut.deleteComment(commentId,userAccountId);
 
         // Then
-        then(commentRepository).should().deleteById(commentId);
+        then(commentRepository).should().deleteByIdAndUserAccount_UserId(commentId,userAccountId);
     }
 
     private CommentDto createCommentDto(String content) {

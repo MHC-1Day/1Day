@@ -11,4 +11,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 public interface ArticleRepository extends JpaRepository<Article, Long> {
     Page<Article> findByHabit_Id(Long habitId, Pageable pageable);
     Long countByHabit_Id(Long habitId);
+    void deleteByIdAndUserAccount_UserId(Long articleId, String userId);
 }

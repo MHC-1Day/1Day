@@ -2,8 +2,10 @@ package com.mhc.haveit.controller;
 
 import com.mhc.haveit.dto.UserAccountDto;
 import com.mhc.haveit.dto.request.CommentRequest;
+import com.mhc.haveit.dto.security.HavitPrincipal;
 import com.mhc.haveit.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,27 +19,21 @@ public class CommentController {
 
     @PostMapping("/new")
     public String postNewComment(
+            @AuthenticationPrincipal HavitPrincipal havitPrincipal,
             CommentRequest commentRequest,
             Long habitId
     ){
-        // TODO : 인증 정보를 넣어야합니다.
-        UserAccountDto dummyAccount = UserAccountDto.builder()
-                .id(1L)
-                .userId("jsh")
-                .userPassword("pw")
-                .email("jsh@mail.com")
-                .build();
-
-        commentService.saveComment(commentRequest.toDto(dummyAccount));
+        commentService.saveComment(commentRequest.toDto(havitPrincipal.toDto()));
         return "redirect:/habits/"+habitId;
     }
 
     @PostMapping("/{commentId}/delete")
     public String deleteComment(
             @PathVariable Long commentId,
+            @AuthenticationPrincipal HavitPrincipal havitPrincipal,
             Long habitId
     ){
-        commentService.deleteComment(commentId);
+        commentService.deleteComment(commentId,havitPrincipal.getUsername());
         return "redirect:/habits/"+habitId;
     }
 }
