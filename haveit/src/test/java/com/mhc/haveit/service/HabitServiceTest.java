@@ -3,11 +3,11 @@ package com.mhc.haveit.service;
 import com.mhc.haveit.domain.Habit;
 import com.mhc.haveit.domain.UserAccount;
 import com.mhc.haveit.domain.type.SearchType;
-import com.mhc.haveit.dto.ArticleWithCommentDto;
 import com.mhc.haveit.dto.HabitDto;
 import com.mhc.haveit.dto.HabitWithArticlesDto;
 import com.mhc.haveit.dto.UserAccountDto;
 import com.mhc.haveit.repository.HabitRepository;
+import com.mhc.haveit.repository.UserAccountRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,10 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -35,6 +32,7 @@ class HabitServiceTest {
 
     @InjectMocks private HabitService sut;
     @Mock private HabitRepository habitRepository;
+    @Mock private UserAccountRepository userAccountRepository;
 
     @DisplayName("검색어 없이 습관목록을 검색하면, 습관페이지를 반환한다.")
     @Test
@@ -109,12 +107,14 @@ class HabitServiceTest {
         // Given
         HabitDto habitDto = createHabitDto("study","content","java");
         given(habitRepository.save(any(Habit.class))).willReturn(createHabit());
+        given(userAccountRepository.getReferenceById(anyLong())).willReturn(createuserAccount());
 
         // When
         sut.saveHabit(habitDto);
 
         // Then
         then(habitRepository).should().save(any(Habit.class));
+        then(userAccountRepository).should().getReferenceById(anyLong());
     }
 
     @DisplayName("습관의 수정 정보를 입력하면, 습관을 수정한다.")
@@ -122,12 +122,12 @@ class HabitServiceTest {
     void givenModifiedHabitInfo_whenUpdatingHabit_thenUpdatesHabit(){
         // Given
         Habit habit = createHabit();
-        Long habitId = 1L;
         HabitDto dto = createHabitDto("walk","hardWalking","#health");
-        given(habitRepository.findById(dto.getId())).willReturn(Optional.ofNullable(habit));
+        given(habitRepository.getReferenceById(dto.getId())).willReturn(habit);
+        given(userAccountRepository.getReferenceById(dto.getUserAccountDto().getId())).willReturn(dto.getUserAccountDto().toEntity());
 
         // When
-        sut.updateHabit(habitId,dto);
+        sut.updateHabit(dto.getId(),dto);
 
         // Then
         assertThat(habit.getName()).isEqualTo("walk");
@@ -135,25 +135,22 @@ class HabitServiceTest {
                 .hasFieldOrPropertyWithValue("name",dto.getName())
                 .hasFieldOrPropertyWithValue("content",dto.getContent())
                 .hasFieldOrPropertyWithValue("hashtag",dto.getHashtag());
-        then(habitRepository).should().findById(dto.getId());
+        then(habitRepository).should().getReferenceById(dto.getId());
+        then(userAccountRepository).should().getReferenceById(dto.getUserAccountDto().getId());
     }
 
-    @DisplayName("없는 습관의 수정 정보를 입력하면, 예외를 던지고 아무것도 하지않는다.")
+    @DisplayName("없는 습관의 수정 정보를 입력하면, 경고를 던지고 아무것도 하지않는다.")
     @Test
     void givenNonexistentHabitInfo_whenUpdatingHabit_thenThrowsExceptionAndDoseNothing(){
         // Given
         HabitDto dto = createHabitDto("walk","hardWalking","#health");
-        Long habitId = 1L;
-        given(habitRepository.findById(dto.getId())).willReturn(Optional.empty());
+        given(habitRepository.getReferenceById(dto.getId())).willThrow(new EntityNotFoundException());
 
         // When
-        Throwable t = catchThrowable(()-> sut.updateHabit(habitId,dto));
+        sut.updateHabit(dto.getId(),dto);
 
         // Then
-        assertThat(t)
-                .isInstanceOf(EntityNotFoundException.class)
-                        .hasMessage("습관 업데이트 실패. 습관을 찾을 수 없습니다 - dto: "+dto);
-        then(habitRepository).should().findById(dto.getId());
+        then(habitRepository).should().getReferenceById(dto.getId());
     }
 
     @DisplayName("습관의 ID 를 입력하면, 습관을 삭제한다.")
@@ -161,13 +158,14 @@ class HabitServiceTest {
     void givenHabitId_whenDeletingHabit_thenDeletesHabit(){
         // Given
         Long habitId = 1L;
-        willDoNothing().given(habitRepository).deleteById(habitId);
+        String userId = "jsh";
+        willDoNothing().given(habitRepository).deleteByIdAndUserAccount_UserId(habitId,userId);
 
         // When
-        sut.deleteHabit(habitId);
+        sut.deleteHabit(habitId,userId);
 
         // Then
-        then(habitRepository).should().deleteById(habitId);
+        then(habitRepository).should().deleteByIdAndUserAccount_UserId(habitId,userId);
     }
 
     @DisplayName("습관의 수를 조회하면, 습관의 총 수를 반환한다.")
@@ -211,14 +209,15 @@ class HabitServiceTest {
                 .userAccountDto(createUserAccountDto())
                 .content(content)
                 .hashtag(hashtag)
-                .createdAt(LocalDateTime.now())
-                .createdBy("jsh")
-                .modifiedAt(LocalDateTime.now())
-                .modifiedBy("jsh")
+//                .createdAt(LocalDateTime.now())
+//                .createdBy("jsh")
+//                .modifiedAt(LocalDateTime.now())
+//                .modifiedBy("jsh")
                 .build();
     }
     private Habit createHabit(){
         return Habit.builder()
+                .id(1L)
                 .name("Spring")
                 .userAccount(createuserAccount())
                 .content("study")
@@ -227,20 +226,22 @@ class HabitServiceTest {
     }
 
     private UserAccountDto createUserAccountDto(){
-        return UserAccountDto.builder()
-                .id(1L)
-                .nickname("Jeong")
-                .email("jsh@mail.com")
-                .memo("memo")
-                .createdAt(LocalDateTime.now())
-                .createdBy("jsh")
-                .modifiedAt(LocalDateTime.now())
-                .modifiedBy("jsh")
-                .build();
+        return UserAccountDto.from(createuserAccount());
+//                .builder()
+//                .id(1L)
+//                .nickname("Jeong")
+//                .email("jsh@mail.com")
+//                .memo("memo")
+//                .createdAt(LocalDateTime.now())
+//                .createdBy("jsh")
+//                .modifiedAt(LocalDateTime.now())
+//                .modifiedBy("jsh")
+//                .build();
     }
 
     private UserAccount createuserAccount(){
         return UserAccount.builder()
+                .id(1L)
                 .nickname("Jeong")
                 .email("jsh@mail.com")
                 .memo("memo")

@@ -8,7 +8,7 @@ import com.mhc.haveit.dto.UserAccountDto;
 import com.mhc.haveit.repository.ArticleRepository;
 import com.mhc.haveit.repository.HabitRepository;
 import com.mhc.haveit.repository.UserAccountRepository;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,7 +52,7 @@ class ArticleServiceTest {
     @Test
     void givenArticleInfo_whenSaving_thenSavesArticle(){
         // Given
-        ArticleDto articleDto = createArticleDto("title","content");
+        ArticleDto articleDto = createArticleDto("title","content",createUserAccountDto());
         given(articleRepository.save(any(Article.class))).willReturn(createArticle());
         given(habitRepository.getReferenceById(articleDto.getHabitId())).willReturn(createHabit());
         given(userAccountRepository.getReferenceById(articleDto.getUserAccountDto().getId())).willReturn(createuserAccount());
@@ -70,7 +70,7 @@ class ArticleServiceTest {
     @Test
     void givenNoneExistHabit_whenSaving_thenThrowsExceptionAndDoseNothing(){
         // Given
-        ArticleDto articleDto = createArticleDto("wrongTitle","wrongContent");
+        ArticleDto articleDto = createArticleDto("wrongTitle","wrongContent",createUserAccountDto());
         given(habitRepository.getReferenceById(articleDto.getHabitId())).willThrow(EntityNotFoundException.class);
 
         // When
@@ -88,7 +88,7 @@ class ArticleServiceTest {
         // Given
         Long articleId = 1L;
         Article article = createArticle();
-        ArticleDto updateArticleDto = createArticleDto("updateTitle","updateContent");
+        ArticleDto updateArticleDto = createArticleDto("updateTitle","updateContent",createUserAccountDto());
         given(articleRepository.getReferenceById(updateArticleDto.getId())).willReturn(article);
 
         // When
@@ -101,12 +101,31 @@ class ArticleServiceTest {
         then(articleRepository).should().getReferenceById(updateArticleDto.getId());
     }
 
+    @DisplayName("다른 유저가 게시글의 수정 정보를 입력하면, 아무것도 하지않는다.")
+    @Test
+    void givenAnotherUserModifiedArticleInfo_whenUpdating_thenNothing(){
+        // Given
+        Long articleId = 1L;
+        Article article = createArticle();
+        ArticleDto updateArticleDto = createArticleDto("updateTitle","updateContent",createAnotherUserAccountDto());
+        given(articleRepository.getReferenceById(articleId)).willReturn(article);
+
+        // When
+        sut.updateArticle(articleId,updateArticleDto);
+
+        // Then
+        assertThat(article)
+                .hasFieldOrPropertyWithValue("title",article.getTitle())
+                .hasFieldOrPropertyWithValue("content",article.getContent());
+        then(articleRepository).should().getReferenceById(updateArticleDto.getId());
+    }
+
     @DisplayName("없는 게시글의 수정 정보를 입력하면, 예외를 던지고 아무것도 하지않는다.")
     @Test
     void givenNoneExistArticleInfo_whenUpdating_thenThrowsExceptionsAndDoseNothing(){
         // Given
         Long articleId = 1L;
-        ArticleDto updateArticleDto = createArticleDto("updateTitle","updateContent");
+        ArticleDto updateArticleDto = createArticleDto("updateTitle","updateContent",createUserAccountDto());
         given(articleRepository.getReferenceById(updateArticleDto.getId())).willThrow(EntityNotFoundException.class);
 
         // When
@@ -121,13 +140,14 @@ class ArticleServiceTest {
     void givenArticleId_whenDeleting_thenDeletesArticle(){
         // Given
         Long articleId = 1L;
-        willDoNothing().given(articleRepository).deleteById(articleId);
+        String userId = "jsh";
+        willDoNothing().given(articleRepository).deleteByIdAndUserAccount_UserId(articleId,userId);
 
         // When
-        sut.deleteArticle(articleId);
+        sut.deleteArticle(articleId,userId);
 
         // Then
-        then(articleRepository).should().deleteById(articleId);
+        then(articleRepository).should().deleteByIdAndUserAccount_UserId(articleId,userId);
     }
 
     @DisplayName("해당 습관의 ID 로 게시글 수를 조회하면, 습관의 게시글 수를 반환한다.")
@@ -162,19 +182,20 @@ class ArticleServiceTest {
         then(articleRepository).should().count();
     }
 
-    private ArticleDto createArticleDto(String title, String content){
+    private ArticleDto createArticleDto(String title, String content, UserAccountDto userAccountDto){
         return ArticleDto.builder()
                 .id(1L)
                 .habitId(1L)
                 .title(title)
                 .content(content)
-                .userAccountDto(createUserAccountDto())
+                .userAccountDto(userAccountDto)
                 .build();
     }
     private Article createArticle() {
         return Article.builder()
                 .id(1L)
                 .habit(createHabit())
+                .userAccount(createuserAccount())
                 .title("title")
                 .content("content")
                 .build();
@@ -196,6 +217,19 @@ class ArticleServiceTest {
                 .nickname("Jeong")
                 .email("jsh@mail.com")
                 .memo("memo")
+                .build();
+    }
+
+    private UserAccountDto createAnotherUserAccountDto(){
+        return UserAccountDto.builder()
+                .id(2L)
+                .nickname("anotherUser")
+                .email("anotherUser@mail.com")
+                .memo("anotherUser")
+                .createdAt(LocalDateTime.now())
+                .createdBy("anotherUser")
+                .modifiedAt(LocalDateTime.now())
+                .modifiedBy("anotherUser")
                 .build();
     }
 

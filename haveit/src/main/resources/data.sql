@@ -1,7 +1,7 @@
 -- 테스트 계정
 insert into user_account (user_id, user_password, nickname, email, memo, created_at, created_by, modified_at, modified_by) values
-('jsh', '9057', 'Jeong', 'jsh@mail.com', 'I am Jeong.', now(), 'jsh', now(), 'jsh');
-
+('jsh', '{noop}9057', 'Jeong', 'jsh@mail.com', 'I am Jeong.', now(), 'jsh', now(), 'jsh'),
+('test', '{noop}9057', 'test', 'test@mail.com', 'I am test.', now(), 'test', now(), 'test');
 
 -- 습관 100개
 

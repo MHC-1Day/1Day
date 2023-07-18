@@ -6,14 +6,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
-@Import(JpaConfig.class)
+@Import(JpaRepositoryTest.TestJpaConfig.class)
 @DataJpaTest
 class JpaRepositoryTest {
     private final UserAccountRepository userAccountRepository;
@@ -39,7 +43,7 @@ class JpaRepositoryTest {
         // Then
         assertThat(userAccounts)
                 .isNotNull()
-                .hasSize(1);
+                .hasSize(2);
         assertThat(habits)
                 .isNotNull()
                 .hasSize(100);
@@ -96,4 +100,18 @@ class JpaRepositoryTest {
         assertThat(habitRepository.count())
                 .isEqualTo(previousCount-1);
     }
+
+    /*
+        Jpa 의 auditorAware 기능 때문에 insert 에 null 값이 들어가는 문제가 생김.
+        Security 와는 무관하게 테스트 하기위해 TestConfig 를 추가 함
+     */
+    @EnableJpaAuditing
+    @TestConfiguration
+    public static class TestJpaConfig {
+        @Bean
+        public AuditorAware<String> auditorAware(){
+            return () -> Optional.of("jsh");
+        }
+    }
+
 }

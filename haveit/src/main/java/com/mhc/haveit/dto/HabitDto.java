@@ -1,6 +1,7 @@
 package com.mhc.haveit.dto;
 
 import com.mhc.haveit.domain.Habit;
+import com.mhc.haveit.domain.UserAccount;
 import lombok.*;
 
 import java.io.Serializable;
@@ -40,11 +41,12 @@ public class HabitDto implements Serializable {
                 .build();
     }
 
-    public Habit toEntity() {
+    public Habit toEntity(UserAccount userAccount) {
+        Optional.ofNullable(userAccount).orElseThrow(()-> new IllegalArgumentException("잘못된 유저 입니다. - userAccount:"+userAccount));
         return Habit.builder()
                 .id(id)
                 .name(name)
-                .userAccount(userAccountDto.toEntity())
+                .userAccount(userAccount)
                 .content(content)
                 .hashtag(hashtag)
                 .endDate(endDate)

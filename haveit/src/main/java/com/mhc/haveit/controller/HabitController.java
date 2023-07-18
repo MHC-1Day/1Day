@@ -2,12 +2,10 @@ package com.mhc.haveit.controller;
 
 import com.mhc.haveit.domain.type.FormStatus;
 import com.mhc.haveit.domain.type.SearchType;
-import com.mhc.haveit.dto.UserAccountDto;
 import com.mhc.haveit.dto.request.HabitRequest;
-import com.mhc.haveit.dto.response.ArticleWithCommentResponse;
 import com.mhc.haveit.dto.response.HabitResponse;
 import com.mhc.haveit.dto.response.HabitWithArticlesResponse;
-import com.mhc.haveit.service.ArticleService;
+import com.mhc.haveit.dto.security.HavitPrincipal;
 import com.mhc.haveit.service.HabitService;
 import com.mhc.haveit.service.PaginationService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -64,16 +63,11 @@ public class HabitController {
     }
 
     @PostMapping("/form")
-    public String postNewHabit(HabitRequest habitRequest){
-        // TODO : 인증 정보를 넣어야합니다.
-        UserAccountDto dummyAccount = UserAccountDto.builder()
-                .id(1L)
-                .userId("jsh")
-                .userPassword("pw")
-                .email("jsh@mail.com")
-                .build();
-
-        habitService.saveHabit(habitRequest.toDto(dummyAccount));
+    public String postNewHabit(
+            @AuthenticationPrincipal HavitPrincipal havitPrincipal,
+            HabitRequest habitRequest
+    ){
+        habitService.saveHabit(habitRequest.toDto(havitPrincipal.toDto()));
         return "redirect:/habits";
     }
 
@@ -86,23 +80,21 @@ public class HabitController {
     }
 
     @PostMapping("/{habitId}/form")
-    public String postNewHabit(@PathVariable Long habitId, HabitRequest habitRequest){
-        // TODO : 인증 정보를 넣어야합니다.
-        UserAccountDto dummyAccount = UserAccountDto.builder()
-                .id(1L)
-                .userId("jsh")
-                .userPassword("pw")
-                .nickname("Jeong")
-                .email("jsh@mail.com")
-                .build();
-
-        habitService.updateHabit(habitId,habitRequest.toDto(dummyAccount));
+    public String postNewHabit(
+            @PathVariable Long habitId,
+            @AuthenticationPrincipal HavitPrincipal havitPrincipal,
+            HabitRequest habitRequest
+    ){
+        habitService.updateHabit(habitId,habitRequest.toDto(havitPrincipal.toDto()));
         return "redirect:/habits/"+habitId;
     }
 
     @PostMapping("/{habitId}/delete")
-    public String postDeleteHabit(@PathVariable Long habitId){
-        habitService.deleteHabit(habitId);
+    public String postDeleteHabit(
+            @PathVariable Long habitId,
+            @AuthenticationPrincipal HavitPrincipal havitPrincipal
+            ){
+        habitService.deleteHabit(habitId,havitPrincipal.getUsername());
         return "redirect:/habits";
     }
 

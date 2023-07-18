@@ -4,8 +4,10 @@ import com.mhc.haveit.domain.type.FormStatus;
 import com.mhc.haveit.dto.UserAccountDto;
 import com.mhc.haveit.dto.request.ArticleRequest;
 import com.mhc.haveit.dto.response.ArticleResponse;
+import com.mhc.haveit.dto.security.HavitPrincipal;
 import com.mhc.haveit.service.ArticleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,18 +31,11 @@ public class ArticleController {
 
     @PostMapping("/form")
     public String postNewArticle(
+            @AuthenticationPrincipal HavitPrincipal havitPrincipal,
             ArticleRequest articleRequest,
             Long habitId
     ){
-        // TODO : 인증 정보를 넣어야합니다.
-        UserAccountDto dummyAccount = UserAccountDto.builder()
-                .id(1L)
-                .userId("jsh")
-                .userPassword("pw")
-                .email("jsh@mail.com")
-                .build();
-
-        articleService.saveArticle(articleRequest.toDto(dummyAccount));
+        articleService.saveArticle(articleRequest.toDto(havitPrincipal.toDto()));
         return "redirect:/habits/"+habitId;
     }
 
@@ -60,27 +55,21 @@ public class ArticleController {
     @PostMapping("/{articleId}/form")
     public String postUpdateArticle(
             @PathVariable Long articleId,
+            @AuthenticationPrincipal HavitPrincipal havitPrincipal,
             Long habitId,
             ArticleRequest articleRequest
     ){
-        // TODO : 인증 정보를 넣어야합니다.
-        UserAccountDto dummyAccount = UserAccountDto.builder()
-                .id(1L)
-                .userId("jsh")
-                .userPassword("pw")
-                .email("jsh@mail.com")
-                .build();
-
-        articleService.updateArticle(articleId,articleRequest.toDto(dummyAccount));
+        articleService.updateArticle(articleId,articleRequest.toDto(havitPrincipal.toDto()));
         return "redirect:/habits/"+habitId;
     }
 
     @PostMapping("/{articleId}/delete")
     public String deleteArticle(
             @PathVariable Long articleId,
+            @AuthenticationPrincipal HavitPrincipal havitPrincipal,
             String habitId
     ){
-        articleService.deleteArticle(articleId);
+        articleService.deleteArticle(articleId,havitPrincipal.getUsername());
         return "redirect:/habits/"+habitId;
     }
 

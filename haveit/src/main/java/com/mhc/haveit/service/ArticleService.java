@@ -16,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
@@ -45,15 +47,17 @@ public class ArticleService {
     public void updateArticle(Long articleId, ArticleDto dto) {
         try{
             Article article = articleRepository.getReferenceById(articleId);
-            if(dto.getTitle() != null){ article.setTitle(dto.getTitle()); }
-            if(dto.getContent() != null){ article.setContent(dto.getContent()); }
+            if(Objects.equals(article.getUserAccount().getId(), dto.getUserAccountDto().getId())){
+                if(dto.getTitle() != null){ article.setTitle(dto.getTitle()); }
+                if(dto.getContent() != null){ article.setContent(dto.getContent()); }
+            }
         }catch (EntityNotFoundException e){
             log.warn("게시글 업데이트 실패. 게시글을 찾을 수 없습니다 - dto:{}",dto);
         }
     }
 
-    public void deleteArticle(Long articleId) {
-        articleRepository.deleteById(articleId);
+    public void deleteArticle(Long articleId, String userId) {
+        articleRepository.deleteByIdAndUserAccount_UserId(articleId,userId);
     }
 
     @Transactional(readOnly = true)
