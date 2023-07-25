@@ -6,6 +6,7 @@ import com.mhc.haveit.domain.UserAccount;
 import com.mhc.haveit.dto.ArticleDto;
 import com.mhc.haveit.dto.UserAccountDto;
 import com.mhc.haveit.repository.ArticleRepository;
+import com.mhc.haveit.repository.HabitRegistrationRepository;
 import com.mhc.haveit.repository.HabitRepository;
 import com.mhc.haveit.repository.UserAccountRepository;
 import jakarta.persistence.*;
@@ -31,6 +32,7 @@ class ArticleServiceTest {
     @Mock private ArticleRepository articleRepository;
     @Mock private HabitRepository habitRepository;
     @Mock private UserAccountRepository userAccountRepository;
+    @Mock private HabitRegistrationRepository habitRegistrationRepository;
     
     @DisplayName("습관 ID 로 조회하면, 해당하는 게시글 리스트를 반환한다.")
     @Test
@@ -56,6 +58,8 @@ class ArticleServiceTest {
         given(articleRepository.save(any(Article.class))).willReturn(createArticle());
         given(habitRepository.getReferenceById(articleDto.getHabitId())).willReturn(createHabit());
         given(userAccountRepository.getReferenceById(articleDto.getUserAccountDto().getId())).willReturn(createuserAccount());
+        given(habitRegistrationRepository.existsHabitRegistrationByHabit_IdAndUserAccount_UserId(anyLong(),anyString())).willReturn(true);
+
 
         // When
         sut.saveArticle(articleDto);
@@ -64,6 +68,7 @@ class ArticleServiceTest {
         then(articleRepository).should().save(any(Article.class));
         then(habitRepository).should().getReferenceById(articleDto.getHabitId());
         then(userAccountRepository).should().getReferenceById(articleDto.getUserAccountDto().getId());
+        then(habitRegistrationRepository).should().existsHabitRegistrationByHabit_IdAndUserAccount_UserId(anyLong(),anyString());
     }
 
     @DisplayName("없는 습관의 게시글 정보를 입력하면, 예외를 던지고 아무것도 하지않는다.")
@@ -214,6 +219,7 @@ class ArticleServiceTest {
     private UserAccount createuserAccount(){
         return UserAccount.builder()
                 .id(1L)
+                .userId("jsh")
                 .nickname("Jeong")
                 .email("jsh@mail.com")
                 .memo("memo")
@@ -236,6 +242,7 @@ class ArticleServiceTest {
     private UserAccountDto createUserAccountDto(){
         return UserAccountDto.builder()
                 .id(1L)
+                .userId("jsh")
                 .nickname("Jeong")
                 .email("jsh@mail.com")
                 .memo("memo")

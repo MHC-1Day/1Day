@@ -4,8 +4,10 @@ import com.mhc.haveit.domain.Habit;
 import com.mhc.haveit.domain.UserAccount;
 import com.mhc.haveit.domain.type.SearchType;
 import com.mhc.haveit.dto.HabitDto;
+import com.mhc.haveit.dto.HabitRegistrationDto;
 import com.mhc.haveit.dto.HabitWithArticlesDto;
 import com.mhc.haveit.dto.UserAccountDto;
+import com.mhc.haveit.repository.HabitRegistrationRepository;
 import com.mhc.haveit.repository.HabitRepository;
 import com.mhc.haveit.repository.UserAccountRepository;
 import jakarta.persistence.*;
@@ -27,6 +29,7 @@ public class HabitService {
     private final UserAccountRepository userAccountRepository;
 
     private final HabitRepository habitRepository;
+    private final HabitRegistrationRepository habitRegistrationRepository;
 
     @Transactional(readOnly = true)
     public Page<HabitDto> searchHabits(SearchType searchType, String searchKeyword, Pageable pageable){
@@ -50,7 +53,14 @@ public class HabitService {
 
     public void saveHabit(HabitDto dto) {
         UserAccount userAccount = userAccountRepository.getReferenceById(dto.getUserAccountDto().getId());
-        habitRepository.save(dto.toEntity(userAccount));
+        HabitRegistrationDto habitRegistrationDto = HabitRegistrationDto.builder()
+                                                                        .userAccountId(userAccount.getUserId())
+                                                                        .habitId(dto.getId())
+                                                                        .build();
+        Habit habitEntity = dto.toEntity(userAccount);
+        habitRepository.save(habitEntity);
+
+        habitRegistrationRepository.save(habitRegistrationDto.toEntity(habitEntity,userAccount));
     }
 
     public void updateHabit(Long habitId, HabitDto dto) {
