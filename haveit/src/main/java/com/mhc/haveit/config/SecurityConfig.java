@@ -34,7 +34,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .formLogin(login -> login.defaultSuccessUrl("/",true))
-                .logout(withDefaults())
+                .logout(logout -> logout.logoutSuccessUrl("/"))
                 .build();
     }
 /*
