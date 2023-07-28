@@ -6,6 +6,7 @@ import com.mhc.haveit.domain.UserAccount;
 import com.mhc.haveit.dto.ArticleDto;
 import com.mhc.haveit.dto.ArticleWithCommentDto;
 import com.mhc.haveit.repository.ArticleRepository;
+import com.mhc.haveit.repository.HabitRegistrationRepository;
 import com.mhc.haveit.repository.HabitRepository;
 import com.mhc.haveit.repository.UserAccountRepository;
 import jakarta.persistence.*;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 @Slf4j
@@ -26,6 +28,7 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final HabitRepository habitRepository;
     private final UserAccountRepository userAccountRepository;
+    private final HabitRegistrationRepository habitRegistrationRepository;
 
     @Transactional(readOnly = true)
     public Page<ArticleDto> searchArticles(Long habitId, Pageable pageable) {
@@ -37,6 +40,13 @@ public class ArticleService {
         try {
             Habit habit = habitRepository.getReferenceById(dto.getHabitId());
             UserAccount userAccount = userAccountRepository.getReferenceById(dto.getUserAccountDto().getId());
+
+            boolean isExist = habitRegistrationRepository.existsHabitRegistrationByHabit_IdAndUserAccount_UserId(habit.getId(),userAccount.getUserId());
+            if(!isExist){
+                log.warn("게시글 저장 실패, 습관에 등록된 유저가 아닙니다. ");
+                return;
+            }
+
             articleRepository.save(dto.toEntity(habit,userAccount));
         }
         catch (EntityNotFoundException e){

@@ -1,11 +1,13 @@
 package com.mhc.haveit.service;
 
 import com.mhc.haveit.domain.Habit;
+import com.mhc.haveit.domain.HabitRegistration;
 import com.mhc.haveit.domain.UserAccount;
 import com.mhc.haveit.domain.type.SearchType;
 import com.mhc.haveit.dto.HabitDto;
 import com.mhc.haveit.dto.HabitWithArticlesDto;
 import com.mhc.haveit.dto.UserAccountDto;
+import com.mhc.haveit.repository.HabitRegistrationRepository;
 import com.mhc.haveit.repository.HabitRepository;
 import com.mhc.haveit.repository.UserAccountRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -33,6 +35,7 @@ class HabitServiceTest {
     @InjectMocks private HabitService sut;
     @Mock private HabitRepository habitRepository;
     @Mock private UserAccountRepository userAccountRepository;
+    @Mock private HabitRegistrationRepository habitRegistrationRepository;
 
     @DisplayName("검색어 없이 습관목록을 검색하면, 습관페이지를 반환한다.")
     @Test
@@ -108,6 +111,7 @@ class HabitServiceTest {
         HabitDto habitDto = createHabitDto("study","content","java");
         given(habitRepository.save(any(Habit.class))).willReturn(createHabit());
         given(userAccountRepository.getReferenceById(anyLong())).willReturn(createuserAccount());
+        given(habitRegistrationRepository.save(any(HabitRegistration.class))).willReturn(any(HabitRegistration.class));
 
         // When
         sut.saveHabit(habitDto);
@@ -115,6 +119,7 @@ class HabitServiceTest {
         // Then
         then(habitRepository).should().save(any(Habit.class));
         then(userAccountRepository).should().getReferenceById(anyLong());
+        then(habitRegistrationRepository).should().save(any(HabitRegistration.class));
     }
 
     @DisplayName("습관의 수정 정보를 입력하면, 습관을 수정한다.")

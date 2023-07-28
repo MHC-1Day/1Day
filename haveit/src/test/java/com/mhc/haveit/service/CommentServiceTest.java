@@ -9,6 +9,7 @@ import com.mhc.haveit.dto.CommentDto;
 import com.mhc.haveit.dto.UserAccountDto;
 import com.mhc.haveit.repository.ArticleRepository;
 import com.mhc.haveit.repository.CommentRepository;
+import com.mhc.haveit.repository.HabitRegistrationRepository;
 import com.mhc.haveit.repository.UserAccountRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ class CommentServiceTest {
     @Mock private CommentRepository commentRepository;
     @Mock private ArticleRepository articleRepository;
     @Mock private UserAccountRepository userAccountRepository;
+    @Mock private HabitRegistrationRepository habitRegistrationRepository;
 
     @DisplayName("댓글 정보를 입력하면, 댓글을 저장한다.")
     @Test
@@ -37,8 +39,9 @@ class CommentServiceTest {
         // Given
         CommentDto commentDto = createCommentDto("content");
         given(commentRepository.save(any(Comment.class))).willReturn(null);
-        given(articleRepository.getReferenceById(any(Long.class))).willReturn(createArticle());
-        given(userAccountRepository.getReferenceById(any(Long.class))).willReturn(createuserAccount());
+        given(articleRepository.getReferenceById(anyLong())).willReturn(createArticle());
+        given(userAccountRepository.getReferenceById(anyLong())).willReturn(createuserAccount());
+        given(habitRegistrationRepository.existsHabitRegistrationByHabit_IdAndUserAccount_UserId(anyLong(),anyString())).willReturn(true);
 
         // When
         sut.saveComment(commentDto);
@@ -47,6 +50,7 @@ class CommentServiceTest {
         then(commentRepository).should().save(any(Comment.class));
         then(articleRepository).should().getReferenceById(any(Long.class));
         then(userAccountRepository).should().getReferenceById(any(Long.class));
+        then(habitRegistrationRepository).should().existsHabitRegistrationByHabit_IdAndUserAccount_UserId(anyLong(),anyString());
 
     }
 
@@ -87,6 +91,7 @@ class CommentServiceTest {
     private UserAccountDto createUserAccountDto(){
         return UserAccountDto.builder()
                 .id(1L)
+                .userId("jsh")
                 .nickname("Jeong")
                 .email("jsh@mail.com")
                 .memo("memo")
@@ -100,6 +105,7 @@ class CommentServiceTest {
     private UserAccount createuserAccount(){
         return UserAccount.builder()
                 .id(1L)
+                .userId("jsh")
                 .nickname("Jeong")
                 .email("jsh@mail.com")
                 .memo("memo")
